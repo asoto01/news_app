@@ -1,7 +1,15 @@
-package com.example.rkjc.news_app_2;
+package com.example.rkjc.news_app_2.models;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
+
+@Entity(tableName = "news_item")
 
 public class NewsItem {
 
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     // Field Variables from JSON returned by URL.
     private String author;
     private String title;
@@ -10,7 +18,19 @@ public class NewsItem {
     private String urlToImage;
     private String publishedAt;
 
-    // Constructor.
+    public NewsItem(int id, String author, String title, String description, String url, String urlToImage, String publishedAt) {
+        this.id = id;
+        this.author = author;
+        this.title = title;
+        this.description = description;
+        this.url = url;
+        this.urlToImage = urlToImage;
+        this.publishedAt = publishedAt;
+    }
+
+    // Using @Ignore for the second constructor, so Room doesn't try to use it.
+    // 2nd Constructor.
+    @Ignore
     public NewsItem(String author, String title, String description, String url, String urlToImage, String publishedAt) {
         this.author = author;
         this.title = title;
@@ -67,5 +87,13 @@ public class NewsItem {
 
     public void setPublishedAt(String publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

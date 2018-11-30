@@ -8,19 +8,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.rkjc.news_app_2.models.NewsItem;
+
 import java.util.ArrayList;
 
 
 public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerViewAdapter.NewsItemViewHolder> {
 
     //Context context;
-    private ArrayList<NewsItem> mArticles;
-    final private ListItemClickListener mOnClickListener;
+    Context mContext;
+    private ArrayList<NewsItem> mNews;
+    private ListItemClickListener mOnClickListener;
 
 
     public NewsRecyclerViewAdapter(ArrayList<NewsItem> mArticles, ListItemClickListener mOnClickListener){
-        this.mArticles = mArticles;
+        this.mNews = mArticles;
         this.mOnClickListener = mOnClickListener;
+    }
+
+    public NewsRecyclerViewAdapter(Context context, ArrayList<NewsItem> mNews) {
+        this.mContext = context;
+        this.mNews = mNews;
     }
 
     public interface ListItemClickListener {
@@ -42,16 +50,16 @@ public class NewsRecyclerViewAdapter extends RecyclerView.Adapter<NewsRecyclerVi
 
     @Override
     public void onBindViewHolder( NewsItemViewHolder articleViewHolder, int position) {
-        NewsItem currentNewsItem = mArticles.get(position);
+        NewsItem currentNewsItem = mNews.get(position);
         articleViewHolder.title.setText("Title: " + currentNewsItem.getTitle());
         articleViewHolder.description.setText("Description: " + currentNewsItem.getDescription());
-        articleViewHolder.date.setText("Date: " + mArticles.get(position).getPublishedAt());
+        articleViewHolder.date.setText("Date: " + mNews.get(position).getPublishedAt());
 
     }
 
     @Override
     public int getItemCount() {
-        return mArticles.size();
+        return mNews.size();
     }
 
     class NewsItemViewHolder extends RecyclerView.ViewHolder

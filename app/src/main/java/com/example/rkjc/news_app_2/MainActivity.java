@@ -1,9 +1,12 @@
 package com.example.rkjc.news_app_2;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,32 +15,47 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
+import com.example.rkjc.news_app_2.models.NewsItem;
+import com.example.rkjc.news_app_2.models.NewsItemViewModel;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NewsRecyclerViewAdapter.ListItemClickListener {
 
-    private ArrayList<NewsItem> mArticles;
+    private Context mContext;
+    private ArrayList<NewsItem> mNews;
     private NewsRecyclerViewAdapter mNewsAdapter;
-    private RecyclerView mNewsArticles;
+    private RecyclerView mRecyclerView;
+    private NewsItemViewModel mNewsItemViewModel;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-
-        mNewsArticles = (RecyclerView) findViewById(R.id.news_recyclerview);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        mNewsArticles.setLayoutManager(layoutManager);
-
-        mNewsArticles.setHasFixedSize(true);
+        mRecyclerView = (RecyclerView) findViewById(R.id.news_recyclerview);
+        mContext = this;
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mNewsItemViewModel = ViewModelProviders.of(this).get(NewsItemViewModel.class);
+        mNewsItemViewModel.getAllNewsItems().observe(this, new Observer<List<NewsItem>>() {
+            @Override
+            public void onChanged(@Nullable final List<NewsItem> newsItems) {
+                mNewsAdapter = new NewsRecyclerViewAdapter(mContext, new ArrayList<NewsItem>(newsItems));
+                mRecyclerView.setAdapter(mNewsAdapter);
+                mRecyclerView.setLayoutManager(layoutManager);
+            }
+        });
+        mRecyclerView.setHasFixedSize(true);
 
         makeNewsSearchQuery();
+
+//        ScheduleUtilities.scheduleRefresh(this);
+
+
 
     }
 
@@ -57,7 +75,9 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_search) {
-            makeNewsSearchQuery();
+//            makeNewsSearchQuery();
+            mNewsItemViewModel.syncNews();
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -66,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListItemClick(int clickedItemIndex) {
 
-        Uri webpage = Uri.parse(mArticles.get(clickedItemIndex).getUrl());
+        Uri webpage = Uri.parse(mNews.get(clickedItemIndex).getUrl());
         Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
 
         if(intent.resolveActivity(getPackageManager()) != null){
@@ -96,10 +116,10 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String newsSearchResults) {
             super.onPostExecute(newsSearchResults);
-            mArticles = JsonUtils.parseNews(newsSearchResults);
+            mNews = JsonUtils.parseNews(newsSearchResults);
 
-            mNewsAdapter = new NewsRecyclerViewAdapter( mArticles, MainActivity.this);
-            mNewsArticles.setAdapter(mNewsAdapter);
+            mNewsAdapter = new NewsRecyclerViewAdapter( mNews, MainActivity.this);
+            mRecyclerView.setAdapter(mNewsAdapter);
 
         }
     }

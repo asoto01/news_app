@@ -37,8 +37,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mRecyclerView = (RecyclerView) findViewById(R.id.news_recyclerview);
-        mContext = this;
+
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mNewsItemViewModel = ViewModelProviders.of(this).get(NewsItemViewModel.class);
         mNewsItemViewModel.getAllNewsItems().observe(this, new Observer<List<NewsItem>>() {
@@ -49,13 +50,11 @@ public class MainActivity extends AppCompatActivity
                 mRecyclerView.setLayoutManager(layoutManager);
             }
         });
+        mRecyclerView.setLayoutManager(layoutManager);
+
         mRecyclerView.setHasFixedSize(true);
 
         makeNewsSearchQuery();
-
-//        ScheduleUtilities.scheduleRefresh(this);
-
-
 
     }
 
@@ -75,8 +74,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_search) {
-//            makeNewsSearchQuery();
-            mNewsItemViewModel.syncNews();
+            makeNewsSearchQuery();
+           // mNewsItemViewModel.syncNews();
 
             return true;
         }
